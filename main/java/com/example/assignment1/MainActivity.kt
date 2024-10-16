@@ -13,7 +13,8 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.assignment1.R
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var editText: EditText // Declare editText
+    private lateinit var editText: EditText
+    private val REQUEST_CODE = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,12 +26,11 @@ class MainActivity : AppCompatActivity() {
 
         sendButton.setOnClickListener {
             val message = editText.text.toString()
-            // Create an intent with URI
             val messageUri = Uri.parse("message:$message")
             val intent = Intent(this, SecondActivity::class.java).apply {
-                data = messageUri // Pass URI as intent data
+                data = messageUri
             }
-            startActivity(intent)
+            startActivityForResult(intent, REQUEST_CODE)
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -40,15 +40,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Receiving reply from SecondActivity using intent extras
-    override fun onResume() {
-        super.onResume()
-        intent?.let {
-            if (it.hasExtra("reply")) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
+            data?.let {
                 val reply = it.getStringExtra("reply")
                 val repliedMessageView: TextView = findViewById(R.id.repliedMessage)
-                repliedMessageView.text = "Reply: $reply" // Display reply
+                repliedMessageView.text = "Reply: $reply"
             }
         }
     }
 }
+
+
